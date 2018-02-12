@@ -9,7 +9,6 @@ reddit = praw.Reddit(client_id= config.client_id,
                      user_agent= config.user_agent)
 
 def get_parser():
-    """Get parser for command line arguments."""
     parser = argparse.ArgumentParser(description="Reddit Downloader")
     parser.add_argument("-s",
                         "--subreddit",
@@ -30,6 +29,7 @@ def prawSubreddit(subName):
     submissions = subreddit.new(limit=None)
     redditData[str(subreddit)] = [{}]
 
+    # Iterate through each submissions and following comments
     for submission in submissions:
         submissionCount += 1
         submission.comments.replace_more(limit=None)
