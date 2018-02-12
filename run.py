@@ -1,10 +1,23 @@
 import config
 import praw
 import json
+import argparse
+
 
 reddit = praw.Reddit(client_id= config.client_id,
                      client_secret= config.client_secret,
                      user_agent= config.user_agent)
+
+def get_parser():
+    """Get parser for command line arguments."""
+    parser = argparse.ArgumentParser(description="Reddit Downloader")
+    parser.add_argument("-s",
+                        "--subreddit",
+                        dest="subreddit",
+                        help="Subreddit to PRAW",
+                        default='all')
+
+    return parser
 
 def prawSubreddit(subName):
     print("Collecting from /r/{}...".format(subName))
@@ -12,6 +25,7 @@ def prawSubreddit(subName):
     commentCount = 0
     fileCount = 0
     redditData = {}
+
     subreddit = reddit.subreddit(subName)
     submissions = subreddit.new(limit=None)
     redditData[str(subreddit)] = [{}]
@@ -30,7 +44,7 @@ def prawSubreddit(subName):
 
         updateTerminal(submissionCount, commentCount, )
 
-        if(submissionCount % 2000 == 0):
+        if(submissionCount % 300 == 0):
             writeOutput("{}_{}.txt".format(subName,fileCount),redditData)
             fileCount += 1
             redditData = {}
@@ -47,13 +61,19 @@ def writeOutput(fileName, data):
 
 # After X amount of seconds, update progress to terminal
 def updateTerminal( subCount, comCount):
-    if ((subCount % 100) == 0):
+    if ((subCount % 350) == 0):
         print("Downloaded: {} Submissions".format(subCount))
         print("Downloaded: {} Comments".format(comCount))
 
+@classmethod
+def parse(cls, api, raw):
+    status = cls.first_parse(api, raw)
+    setattr(status, 'json', json.dumps(raw))
+    return status
 
 if __name__ == '__main__':
 
-    subredditName = 'Catan'
+    parser = get_parser()
+    args = parser.parse_args()
 
-    prawSubreddit(subredditName)
+    prawSubreddit(args.subreddit)
