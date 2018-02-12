@@ -1,6 +1,8 @@
 # Custom Ingores
 config.py
 *.idea/
+*.txt
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
