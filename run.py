@@ -2,6 +2,7 @@ import config
 import praw
 import json
 import argparse
+import datetime
 
 
 reddit = praw.Reddit(client_id= config.client_id,
@@ -16,9 +17,15 @@ def get_parser():
                         help="Subreddit to PRAW",
                         default='all')
 
+    parser.add_argument("-l",
+                        "--limit",
+                        dest="limit",
+                        help="Pull N number of submissions",
+                        default=None)
+
     return parser
 
-def prawSubreddit(subName):
+def prawSubreddit(subName, lm):
     print("Collecting from /r/{}...".format(subName))
     submissionCount = 0
     commentCount = 0
@@ -26,7 +33,7 @@ def prawSubreddit(subName):
     redditData = {}
 
     subreddit = reddit.subreddit(subName)
-    submissions = subreddit.new(limit=None)
+    submissions = subreddit.new(limit=lm)
     redditData[str(subreddit)] = [{}]
 
     # Iterate through each submissions and following comments
@@ -36,11 +43,17 @@ def prawSubreddit(subName):
         redditData[str(subreddit)][0][submission.fullname] = [{}]
         redditData[str(subreddit)][0][submission.fullname][0]['0_title'] = submission.title
         redditData[str(subreddit)][0][submission.fullname][0]['1_text'] = submission.selftext
+        redditData[str(subreddit)][0][submission.fullname][0]['2_timestamp'] =  str(datetime.datetime.fromtimestamp(submission.created))
         redditData[str(subreddit)][0][submission.fullname][0]['comments'] = [{}]
 
         for comment in submission.comments.list():
             commentCount += 1
-            redditData[str(subreddit)][0][submission.fullname][0]['comments'][0][comment.fullname] = comment.body
+            if(not userExistInComments(redditData[str(subreddit)][0][submission.fullname][0]['comments'][0], str(comment.author))):
+                redditData[str(subreddit)][0][submission.fullname][0]['comments'][0][str(comment.author)] = [{}] # Only run is it does not exist
+
+            redditData[str(subreddit)][0][submission.fullname][0]['comments'][0][str(comment.author)][0][str(comment)] = [{}]
+            redditData[str(subreddit)][0][submission.fullname][0]['comments'][0][str(comment.author)][0][str(comment)][0]["0_timestamp"] = str(datetime.datetime.fromtimestamp(comment.created_utc))
+            redditData[str(subreddit)][0][submission.fullname][0]['comments'][0][str(comment.author)][0][str(comment)][0]["1_text"] = comment.body
 
         updateTerminal(submissionCount, commentCount, )
 
@@ -54,6 +67,10 @@ def prawSubreddit(subName):
     print("Finished Collecting.")
     writeOutput("{}_{}.txt".format(subName,fileCount),redditData)
 
+def userExistInComments(commentList, user):
+    if user in commentList:
+        return True
+    return False
 
 def writeOutput(fileName, data):
     outputFile = open(fileName, "w")
@@ -76,4 +93,8 @@ if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
 
-    prawSubreddit(args.subreddit)
+    limit = args.limit
+    if (limit != None):
+        limit = int(limit)
+
+    prawSubreddit(args.subreddit, limit)
