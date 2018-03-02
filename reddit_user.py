@@ -44,7 +44,7 @@ def prawAPI(user, lt):
         if comCount%10==0:
             print("Found: {} Comments".format(comCount))
         redditData[str(user)][0]['0_comments'][0][str(comment.id)] = [{}]
-        redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['0_Comment Submission'] = comment.submission.title
+        redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['0_Comment Submission Title'] = comment.submission.title
         redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['1_Text'] = ''.join((comment.body)).encode('utf-8').strip()
         redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['2_Subreddit'] = comment.subreddit.display_name
     print("Found: {} Comments Total".format(comCount))
