@@ -1,6 +1,6 @@
-# Reddit Collector
+# Reddit Collector - run.py
 This program is design to collect all data from a subreddit and organize the
-data by submissions, user comments. Below I will provide extecution commands
+data by submissions, user comments. Below I will provide execution commands
 as well as the output file format.
 
 ## Commands
@@ -68,3 +68,16 @@ example file.
   ]
 }
 ```
+# Reddit User Collector - reddit_user.py
+This program is designed to pull comments and submissions from a(n) redditor(s). Below I will provide execution commands.
+
+## Commands
+**User** `-u | --user` allows the user to input the name(s) of the redditor(s) they want to pull information from. Default is None
+**Limit** `-l | --limit` allows the user to input the max number of comments/submissions they want to pull. Default is None
+
+## Execution
+
+```
+python reddit_user.py -u user1,user2 -l 20
+```
+The above command will attempt to pull up to 20 comments and 20 submissions for both redditor 'user1' and redditor 'user2'
