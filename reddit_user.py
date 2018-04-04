@@ -24,6 +24,12 @@ def get_parser():
                         help="Pull N number of submissions",
                         default=None)
 
+    parser.add_argument("-ul",
+                        "--userlist",
+                        dest="userlist",
+                        help="List of users to pull information from",
+                        default=None)
+
     return parser
 
 def prawAPI(user, lt):
@@ -44,7 +50,7 @@ def prawAPI(user, lt):
         if comCount%10==0:
             print("Found: {} Comments".format(comCount))
         redditData[str(user)][0]['0_comments'][0][str(comment.id)] = [{}]
-        redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['0_Comment Submission Title'] = comment.submission.title
+        redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['0_Comment Submission'] = comment.submission.title
         redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['1_Text'] = ''.join((comment.body)).encode('utf-8').strip()
         redditData[str(user)][0]['0_comments'][0][str(comment.id)][0]['2_Subreddit'] = comment.subreddit.display_name
     print("Found: {} Comments Total".format(comCount))
@@ -60,7 +66,7 @@ def prawAPI(user, lt):
     print
     print("Downloaded {} comments from user {}.".format(comCount, user))
     print("Downloaded {} submissions from user {}.".format(subCount, user))
-    with open('reddit_'+user+'.json', 'w') as o:
+    with open('User_Hold/reddit_'+user+'.json', 'w') as o:
         o.write(json.dumps(redditData, sort_keys=True))
 
 if __name__ == '__main__':
@@ -73,6 +79,13 @@ if __name__ == '__main__':
         limit = int(limit)
     if args.user == None:
         print("Error: You have not specified a user(s) to retrieve submissions from.")
-    users = args.user.split(',')
-    for s in users:
-        prawAPI(s, limit)
+    #users = args.user.split(',')
+    if args.userlist != None:
+        with open(args.userlist, "r") as inputF:
+            d = inputF.readlines()
+            for user in d:
+                prawAPI(user.strip(),limit)
+    else:
+        users = args.user.split(',')
+        for s in users:
+            prawAPI(s, limit)
